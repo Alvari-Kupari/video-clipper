@@ -5,8 +5,10 @@ import sys
 
 VIDEO_EXTENSIONS = (
     ".mp4", ".mov", ".avi", ".mkv",  # modern formats
-    ".ts", ".vob", ".mpg", ".mpeg", ".m2ts"  # DVD / old formats
+    ".ts", ".vob", ".mpg", ".mpeg", ".m2ts",  # DVD / old formats
+    ".flv", ".wmv", ".webm", ".3gp", ".mts"  # other legacy / niche formats
 )
+
 
 
 def pause_and_exit(code=0):
@@ -55,6 +57,10 @@ def process_video(video_path, output_path):
     print(f"\nInspecting video: {os.path.basename(video_path)}")
     video = VideoFileClip(video_path)
 
+    # Always save as .mp4
+    base_name = os.path.splitext(os.path.basename(output_path))[0]
+    output_path = os.path.join(os.path.dirname(output_path), f"{base_name}.mp4")
+
     while True:
         choice = input("Enter clip times (type 'help' for options): ").strip().lower()
 
@@ -73,14 +79,21 @@ def process_video(video_path, output_path):
                 continue
 
             print(f"Clipping {len(clips)} section(s)...")
-            video_clips = [video.subclipped(start, end) for start, end in clips]
+            try:
+                video_clips = [video.subclipped(start, end) for start, end in clips]
+            
+            except ValueError:
+                print("Invalid clip time: one or more of the clip times is longer than the length of the video. Please try again.")
+                continue
+            
             final = concatenate_videoclips(video_clips)
             print(f"Writing output to {output_path}")
-            final.write_videofile(output_path)
+            final.write_videofile(output_path, codec="libx264", audio_codec="aac")
             print(f"✅ Done: {output_path}")
             break
 
     video.close()
+
 
 def main():
     # keep asking for input folder until valid
@@ -127,7 +140,13 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        print(f"\n❌ Error: {e}")
+        print("SOME UNKNOWN ERROR OCCURRED. PLEASE SCREENSHOT THE TERMINAL AND SEND TO ALVARI")
+        input("\nPress Enter to exit...")
+
 
 
 os.system("pause")
