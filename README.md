@@ -5,7 +5,7 @@ I figured I would make it public just to showcase some of my work.
 
 # Instructions
 
-# Setup and Running
+## Setup and Running
 You have 2 choices to run the tool, python, and packaging / running an executable.
 
 To run the python program directly, you need to run (in the directory with main.py):
@@ -21,7 +21,7 @@ then you can double click the exe, or run
 dist/main.exe  (in a terminal)
 
 
-# Using the Tool
+## Using the Tool
 the first 2 inputs you must give the program are:
 1. The input folder with the videos. 
 2. The output folder where the clipped videos should go
